@@ -1,0 +1,69 @@
+services:
+  backend:
+    container_name: hospital-backend
+
+    build:
+      context: .
+      dockerfile: images/Dockerfile.backend
+
+    ports:
+      - "${ASPNETCORE_PORT}:${ASPNETCORE_PORT}"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: http://+:${ASPNETCORE_PORT}
+
+      ConnectionStrings__DefaultConnection: >
+        Server=${SQL_SERVER},${SQL_PORT};
+        Database=${SQL_DATABASE};
+        User Id=${SQL_USER};
+        Password=${SQL_PASSWORD};
+        TrustServerCertificate=True;
+        Encrypt=False;
+
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    networks:
+      - hospital-network
+
+  sqlserver:
+    container_name: hospital-sqlserver
+
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+    ports:
+      - "${SQL_PORT}:1433"
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: ${SQL_PID}
+      MSSQL_SA_PASSWORD: ${SQL_PASSWORD}
+
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q \"SELECT 1\" || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+
+    networks:
+      - hospital-network
+
+volumes:
+  sqlserver-data:
+
+networks:
+  hospital-network:
+    driver: bridge
