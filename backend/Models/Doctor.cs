@@ -20,5 +20,7 @@ namespace backend.Models
 
         public List<Appointment> Appointment { get; set; } = new List<Appointment>();
 
+        public List<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+
     }
 }

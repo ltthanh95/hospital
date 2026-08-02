@@ -20,33 +20,33 @@ namespace backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
+        public async Task<ActionResult<ApiResponse<AuthResponse>>> Register(RegisterRequest request)
         {
             var result = await _authService.RegisterAsync(request);
             if (result is null)
             {
-                return Conflict(new { message = "Username is already taken." });
+                return Conflict(ApiResponse<AuthResponse>.Fail("Username is already taken.", StatusCodes.Status409Conflict));
             }
 
             SetAuthCookie(result.Token, result.ExpiresAt);
-            return Ok(result);
+            return Ok(ApiResponse<AuthResponse>.Success(result));
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
+        public async Task<ActionResult<ApiResponse<AuthResponse>>> Login(LoginRequest request)
         {
             var result = await _authService.LoginAsync(request);
             if (result is null)
             {
-                return Unauthorized(new { message = "Invalid username or password." });
+                return Unauthorized(ApiResponse<AuthResponse>.Fail("Invalid username or password.", StatusCodes.Status401Unauthorized));
             }
 
             SetAuthCookie(result.Token, result.ExpiresAt);
-            return Ok(result);
+            return Ok(ApiResponse<AuthResponse>.Success(result));
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public ActionResult<ApiResponse> Logout()
         {
             Response.Cookies.Delete(AccessTokenCookieName, new CookieOptions
             {
@@ -56,7 +56,7 @@ namespace backend.Controllers
                 Path = "/",
             });
 
-            return NoContent();
+            return Ok(ApiResponse.Success("Logged out."));
         }
 
         private void SetAuthCookie(string token, DateTime expiresAt)

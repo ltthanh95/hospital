@@ -19,5 +19,14 @@ namespace backend.Repositories
                 .Include(patient => patient.MedicalRecords).ThenInclude(record => record.Doctor)
                 .ToListAsync();
         }
+
+        public new async Task<Patient?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(patient => patient.User)
+                .Include(patient => patient.Appointment).ThenInclude(appointment => appointment.Doctor)
+                .Include(patient => patient.MedicalRecords).ThenInclude(record => record.Doctor)
+                .FirstOrDefaultAsync(patient => patient.Id == id);
+        }
     }
 }

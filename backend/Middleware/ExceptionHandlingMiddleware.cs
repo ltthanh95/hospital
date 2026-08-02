@@ -1,5 +1,7 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc;
+using backend.Exceptions;
+using backend.Models.Dtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Middleware
 {
@@ -28,48 +30,29 @@ namespace backend.Middleware
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception processing {Method} {Path}", context.Request.Method, context.Request.Path);
-                await WriteProblemDetailsAsync(context, ex);
+                await WriteApiResponseAsync(context, ex);
             }
         }
 
-        private async Task WriteProblemDetailsAsync(HttpContext context, Exception exception)
+        private async Task WriteApiResponseAsync(HttpContext context, Exception exception)
         {
             var (statusCode, title) = MapException(exception);
+            var message = _environment.IsDevelopment() ? $"{title}: {exception.Message}" : title;
 
-            var problemDetails = new ProblemDetails
-            {
-                Status = statusCode,
-                Title = title,
-                Type = $"https://tools.ietf.org/html/rfc9110#section-15.{StatusCodeSection(statusCode)}",
-                Instance = context.Request.Path,
-            };
-
-            if (_environment.IsDevelopment())
-            {
-                problemDetails.Detail = exception.ToString();
-            }
-
-            context.Response.ContentType = "application/problem+json";
+            context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            await context.Response.WriteAsJsonAsync(ApiResponse.Fail(message, statusCode));
         }
 
         private static (int StatusCode, string Title) MapException(Exception exception) => exception switch
         {
+            ForbiddenAccessException => ((int)HttpStatusCode.Forbidden, "Forbidden"),
             UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Unauthorized"),
             KeyNotFoundException => ((int)HttpStatusCode.NotFound, "Resource not found"),
             ArgumentException => ((int)HttpStatusCode.BadRequest, "Invalid request"),
+            DbUpdateException => ((int)HttpStatusCode.Conflict, "Operation could not be completed because related records exist"),
             InvalidOperationException => ((int)HttpStatusCode.Conflict, "Operation could not be completed"),
             _ => ((int)HttpStatusCode.InternalServerError, "An unexpected error occurred"),
-        };
-
-        private static string StatusCodeSection(int statusCode) => statusCode switch
-        {
-            400 => "5.1",
-            401 => "5.2",
-            404 => "5.5",
-            409 => "5.10",
-            _ => "6.1",
         };
     }
 }

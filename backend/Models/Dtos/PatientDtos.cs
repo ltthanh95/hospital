@@ -2,6 +2,52 @@
 
 namespace backend.Models.Dtos
 {
+    public class PatientUpdateDetails
+    {
+        [Required]
+        public required string FName { get; set; }
+
+        [Required]
+        public required string LName { get; set; }
+
+        [Required]
+        public required DateTime DoB { get; set; }
+
+        public Gender Gender { get; set; }
+
+        [Required]
+        public required string Address { get; set; }
+
+        [Required]
+        public required string Phone { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public required string Email { get; set; }
+
+        [Required]
+        public required string BloodType { get; set; }
+
+        [Required]
+        public required string EmergencyContact { get; set; }
+    }
+
+    public class UpdatePatientStatusBody : IValidatableObject
+    {
+        [Required]
+        public required Status Status { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Status != Status.ADMISSION && Status != Status.DISCHARGE)
+            {
+                yield return new ValidationResult(
+                    "Status must be either ADMISSION or DISCHARGE.",
+                    [nameof(Status)]);
+            }
+        }
+    }
+
     public class PatientRegistrationDetails
     {
         [Required]

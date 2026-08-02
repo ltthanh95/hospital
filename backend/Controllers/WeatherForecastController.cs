@@ -1,4 +1,5 @@
 using backend.Models;
+using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,21 +17,23 @@ namespace backend.Controllers
         ];
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public ActionResult<ApiResponse<IEnumerable<WeatherForecast>>> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             });
+
+            return Ok(ApiResponse<IEnumerable<WeatherForecast>>.Success(forecasts));
         }
 
         [HttpGet("admin-only")]
         [Authorize(Roles = nameof(Role.ADMIN))]
-        public IActionResult AdminOnly()
+        public ActionResult<ApiResponse> AdminOnly()
         {
-            return Ok(new { message = "You are an admin." });
+            return Ok(ApiResponse.Success("You are an admin."));
         }
     }
 }

@@ -77,7 +77,7 @@ namespace backend.dbContext
 
             modelBuilder.Entity<MedicalRecord>()
                 .HasOne(record => record.Doctor)
-                .WithMany()
+                .WithMany(doctor => doctor.MedicalRecords)
                 .HasForeignKey(record => record.DoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
