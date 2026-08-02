@@ -14,5 +14,7 @@ namespace backend.Models
         public required string Type { get; set; }
 
         public int Capacity { get; set; }
+
+        public List<Stay> Stays { get; set; } = new List<Stay>();
     }
 }

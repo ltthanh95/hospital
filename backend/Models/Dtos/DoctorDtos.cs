@@ -74,6 +74,12 @@ namespace backend.Models.Dtos
         public required string DepartmentName { get; set; }
     }
 
+    public class UpdateDoctorSalaryBody
+    {
+        [Range(0, double.MaxValue)]
+        public decimal Salary { get; set; }
+    }
+
     public class UpdateDoctorStatusBody : IValidatableObject
     {
         [Required]
@@ -140,6 +146,7 @@ namespace backend.Models.Dtos
         public required string LicenseNumber { get; set; }
         public required string Specialization { get; set; }
         public required decimal ConsulationFee { get; set; }
+        public required decimal Salary { get; set; }
         public required Status Status { get; set; }
         public string? DepartmentName { get; set; }
         public required List<DoctorAppointmentSummary> Appointments { get; set; }
@@ -159,6 +166,7 @@ namespace backend.Models.Dtos
             LicenseNumber = doctor.LicenseNumber,
             Specialization = doctor.Specialization,
             ConsulationFee = doctor.ConsulationFee,
+            Salary = doctor.Salary,
             Status = doctor.status,
             DepartmentName = doctor.Department?.Name,
             Appointments = doctor.Appointment.Select(DoctorAppointmentSummary.FromEntity).ToList(),

@@ -16,6 +16,7 @@ namespace backend.Repositories
             return await _dbSet
                 .Include(appointment => appointment.Doctor)
                 .Include(appointment => appointment.Patient)
+                .Include(appointment => appointment.MedicalRecord)
                 .ToListAsync();
         }
 
@@ -24,6 +25,7 @@ namespace backend.Repositories
             return await _dbSet
                 .Include(appointment => appointment.Doctor)
                 .Include(appointment => appointment.Patient)
+                .Include(appointment => appointment.MedicalRecord)
                 .FirstOrDefaultAsync(appointment => appointment.Id == id);
         }
 

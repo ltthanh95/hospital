@@ -57,6 +57,19 @@ namespace backend.Controllers
             return Ok(ApiResponse.Success("Doctor deleted."));
         }
 
+        [HttpPatch("{id:int}/salary")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
+        public async Task<ActionResult<ApiResponse<DoctorResponse>>> UpdateSalary(int id, UpdateDoctorSalaryBody request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.SendAsync(new UpdateDoctorSalaryRequest
+            {
+                DoctorId = id,
+                Salary = request.Salary,
+            }, cancellationToken);
+
+            return Ok(ApiResponse<DoctorResponse>.Success(result, "Doctor salary updated."));
+        }
+
         [HttpPatch("{id:int}/status")]
         [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<DoctorResponse>>> UpdateStatus(int id, UpdateDoctorStatusBody request, CancellationToken cancellationToken)

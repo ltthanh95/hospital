@@ -15,6 +15,9 @@ namespace backend.Models
         public int PatientId { get; set; }
         public Patient Patient { get; set; } = null!;
 
+        public int? AppointmentId { get; set; }
+        public Appointment? Appointment { get; set; }
+
         public ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 
         public DateTime Visit { get; set; }

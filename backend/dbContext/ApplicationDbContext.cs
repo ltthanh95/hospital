@@ -41,6 +41,10 @@ namespace backend.dbContext
                 .Property(doctor => doctor.ConsulationFee)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<Doctor>()
+                .Property(doctor => doctor.Salary)
+                .HasPrecision(18, 2);
+
             modelBuilder.Entity<Medicine>()
                 .Property(medicine => medicine.UnitPrice)
                 .HasPrecision(18, 2);
@@ -87,6 +91,12 @@ namespace backend.dbContext
                 .HasForeignKey(record => record.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<MedicalRecord>()
+                .HasOne(record => record.Appointment)
+                .WithOne(appointment => appointment.MedicalRecord)
+                .HasForeignKey<MedicalRecord>(record => record.AppointmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<PrescriptionItem>()
                 .HasOne(item => item.Medicine)
                 .WithMany(medicine => medicine.PrescriptionItems)
@@ -95,7 +105,7 @@ namespace backend.dbContext
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(invoice => invoice.Patient)
-                .WithMany()
+                .WithMany(patient => patient.Invoices)
                 .HasForeignKey(invoice => invoice.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -113,13 +123,13 @@ namespace backend.dbContext
 
             modelBuilder.Entity<Stay>()
                 .HasOne(stay => stay.Patient)
-                .WithMany()
+                .WithMany(patient => patient.Stays)
                 .HasForeignKey(stay => stay.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Stay>()
                 .HasOne(stay => stay.Room)
-                .WithMany()
+                .WithMany(room => room.Stays)
                 .HasForeignKey(stay => stay.RoomId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

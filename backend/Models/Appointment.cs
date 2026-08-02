@@ -20,5 +20,7 @@ namespace backend.Models
         public int PatientId { get; set; }
         public Patient Patient { get; set; } = null!;
 
+        public MedicalRecord? MedicalRecord { get; set; }
+
     }
 }

@@ -10,6 +10,8 @@ namespace backend.Models
 
         public decimal ConsulationFee { get; set; }
 
+        public decimal Salary { get; set; }
+
         public Status status { get; set; } = Status.ACTIVE;
 
         public int UserId { get; set; }

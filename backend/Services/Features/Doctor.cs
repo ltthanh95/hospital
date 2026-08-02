@@ -130,6 +130,35 @@ namespace backend.Services.Features
         }
     }
 
+    public class UpdateDoctorSalaryRequest : IRequest<DoctorResponse>
+    {
+        public required int DoctorId { get; init; }
+        public required decimal Salary { get; init; }
+    }
+
+    public class UpdateDoctorSalaryHandler : IRequestHandler<UpdateDoctorSalaryRequest, DoctorResponse>
+    {
+        private readonly IDoctorRepository _doctorRepository;
+
+        public UpdateDoctorSalaryHandler(IDoctorRepository doctorRepository)
+        {
+            _doctorRepository = doctorRepository;
+        }
+
+        public async Task<DoctorResponse> HandleAsync(UpdateDoctorSalaryRequest request, CancellationToken cancellationToken)
+        {
+            var doctor = await _doctorRepository.GetByIdAsync(request.DoctorId)
+                ?? throw new KeyNotFoundException($"Doctor {request.DoctorId} not found.");
+
+            doctor.Salary = request.Salary;
+
+            _doctorRepository.Update(doctor);
+            await _doctorRepository.SaveChangesAsync();
+
+            return DoctorResponse.FromEntity(doctor);
+        }
+    }
+
     public class UpdateDoctorStatusRequest : IRequest<DoctorResponse>
     {
         public required int DoctorId { get; init; }
