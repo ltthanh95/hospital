@@ -1,6 +1,38 @@
-@backend_HostAddress = http://localhost:5104
+@backend_HostAddress = http://localhost:5266
 
 GET {{backend_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+POST {{backend_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin1",
+  "password": "P@ssw0rd!",
+  "role": "ADMIN"
+}
+
+###
+
+### Login sets an httpOnly "access_token" cookie; the REST client's cookie jar
+### picks it up automatically for the requests below (no need to copy a token).
+POST {{backend_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin1",
+  "password": "P@ssw0rd!"
+}
+
+###
+
+GET {{backend_HostAddress}}/weatherforecast/admin-only
+Accept: application/json
+
+###
+
+POST {{backend_HostAddress}}/api/auth/logout
 
 ###

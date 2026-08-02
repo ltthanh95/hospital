@@ -1,30 +1,50 @@
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-
-WORKDIR /src
-
-# Copy the backend project
-COPY ./backend/ ./
-
-# Restore dependencies
-RUN dotnet restore
-
-# Publish the application
-RUN dotnet publish \
-    --configuration Release \
-    --output /app/publish \
-    --no-restore
-
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 WORKDIR /app
-
-COPY --from=build /app/publish ./
 
 EXPOSE 8080
 
 ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Development
+
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+
+ARG BUILD_CONFIGURATION=Release
+
+WORKDIR /src
+
+# Copy only the project file first
+COPY backend/backend.csproj backend/
+
+# Restore packages inside Linux
+RUN dotnet restore backend/backend.csproj
+
+# Copy source code without local bin and obj folders
+COPY backend/ backend/
+
+WORKDIR /src/backend
+
+RUN dotnet build backend.csproj \
+    --configuration $BUILD_CONFIGURATION \
+    --output /app/build \
+    --no-restore
+
+
+FROM build AS publish
+
+ARG BUILD_CONFIGURATION=Release
+
+RUN dotnet publish backend.csproj \
+    --configuration $BUILD_CONFIGURATION \
+    --output /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
+
+
+FROM base AS final
+
+WORKDIR /app
+
+COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "backend.dll"]
