@@ -20,6 +20,8 @@ namespace backend.Models
 
         public List<Payment> Payment { get; set; } = new List<Payment>();
 
+        public List<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+
         public void Admission()
         {
             status = Status.ADMISSION;

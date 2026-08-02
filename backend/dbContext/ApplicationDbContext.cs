@@ -83,7 +83,7 @@ namespace backend.dbContext
 
             modelBuilder.Entity<MedicalRecord>()
                 .HasOne(record => record.Patient)
-                .WithMany()
+                .WithMany(patient => patient.MedicalRecords)
                 .HasForeignKey(record => record.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 

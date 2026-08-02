@@ -1,7 +1,10 @@
 using System.Text;
 using backend.Controllers;
 using backend.dbContext;
+using backend.Mediator;
 using backend.Middleware;
+using backend.Repositories;
+using backend.Repositories.Interfaces;
 using backend.Services;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,8 +43,13 @@ var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
     ?? throw new InvalidOperationException("Jwt configuration section is missing.");
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
+builder.Services.AddMyMediator(typeof(Program).Assembly);
+
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
