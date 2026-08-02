@@ -15,9 +15,9 @@
     public enum Status
     {
         ADMISSION,
-        DISCHARGE
+        DISCHARGE,
+        ACTIVE,
+        INACTIVE
     }
-    public class EnumValues
-    {
-    }
+
 }

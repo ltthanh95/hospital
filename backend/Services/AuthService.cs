@@ -47,8 +47,30 @@ namespace backend.Services
                     BloodType = request.Patient.BloodType,
                     EmergencyContact = request.Patient.EmergencyContact,
                     AdmissionDate = admissionDate,
-                    DischargeDate = admissionDate,
                     status = Status.ADMISSION,
+                };
+            }
+
+            if (request.Role == Role.DOCTOR && request.Doctor is not null)
+            {
+                var departmentName = request.Doctor.DepartmentName.Trim();
+                var department = await _db.Departments.FirstOrDefaultAsync(d => d.Name == departmentName)
+                    ?? new Department { Name = departmentName };
+
+                user.Doctor = new Doctor
+                {
+                    FName = request.Doctor.FName,
+                    LName = request.Doctor.LName,
+                    DoB = request.Doctor.DoB,
+                    Gender = request.Doctor.Gender,
+                    Address = request.Doctor.Address,
+                    Phone = request.Doctor.Phone,
+                    Email = request.Doctor.Email,
+                    LicenseNumber = request.Doctor.LicenseNumber,
+                    Specialization = request.Doctor.Specialization,
+                    ConsulationFee = request.Doctor.ConsulationFee,
+                    status = Status.ACTIVE,
+                    Department = department,
                 };
             }
 

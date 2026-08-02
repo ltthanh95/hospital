@@ -17,6 +17,8 @@ namespace backend.Models.Dtos
 
         public PatientRegistrationDetails? Patient { get; set; }
 
+        public DoctorRegistrationDetails? Doctor { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Role == Role.PATIENT && Patient is null)
@@ -24,6 +26,13 @@ namespace backend.Models.Dtos
                 yield return new ValidationResult(
                     "Patient details are required when registering a PATIENT account.",
                     [nameof(Patient)]);
+            }
+
+            if (Role == Role.DOCTOR && Doctor is null)
+            {
+                yield return new ValidationResult(
+                    "Doctor details are required when registering a DOCTOR account.",
+                    [nameof(Doctor)]);
             }
         }
     }

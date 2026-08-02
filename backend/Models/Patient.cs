@@ -8,7 +8,7 @@ namespace backend.Models
         public string BloodType { get; set; }
         public DateTime AdmissionDate { get; set; }
 
-        public DateTime DischargeDate { get; set; }
+        public DateTime? DischargeDate { get; set; }
 
         public Status status { get; set; }
 
