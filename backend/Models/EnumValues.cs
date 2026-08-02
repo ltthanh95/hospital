@@ -20,4 +20,20 @@
         INACTIVE
     }
 
+    public enum PaymentMethod
+    {
+        CASH,
+        CARD,
+        BANK_TRANSFER,
+        INSURANCE
+    }
+
+    public enum PaymentStatus
+    {
+        PENDING,
+        COMPLETED,
+        FAILED,
+        REFUNDED
+    }
+
 }

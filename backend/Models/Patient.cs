@@ -16,6 +16,10 @@ namespace backend.Models
         public int UserId { get; set; }
         public User User { get; set; } = null!;
 
+        public List<Appointment> Appointment { get; set; } = new List<Appointment>();
+
+        public List<Payment> Payment { get; set; } = new List<Payment>();
+
         public void Admission()
         {
             status = Status.ADMISSION;

@@ -18,5 +18,7 @@ namespace backend.Models
         public int? DepartmentId { get; set; }
         public Department? Department { get; set; }
 
+        public List<Appointment> Appointment { get; set; } = new List<Appointment>();
+
     }
 }
