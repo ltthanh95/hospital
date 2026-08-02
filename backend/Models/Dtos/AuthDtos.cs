@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace backend.Models.Dtos
 {
-    public class RegisterRequest
+    public class RegisterRequest : IValidatableObject
     {
         [Required]
         public required string Username { get; set; }
@@ -14,8 +14,21 @@ namespace backend.Models.Dtos
 
         [Required]
         public required Role Role { get; set; }
+
+        public PatientRegistrationDetails? Patient { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Role == Role.PATIENT && Patient is null)
+            {
+                yield return new ValidationResult(
+                    "Patient details are required when registering a PATIENT account.",
+                    [nameof(Patient)]);
+            }
+        }
     }
 
+    
     public class LoginRequest
     {
         [Required]
@@ -27,7 +40,6 @@ namespace backend.Models.Dtos
 
     public class AuthResponse
     {
-        // Carried internally so the controller can set the auth cookie; never serialized to the client.
         [JsonIgnore]
         public string Token { get; set; } = string.Empty;
         public required DateTime ExpiresAt { get; set; }

@@ -52,5 +52,4 @@ TestResults/
 
 backend/Migrations/*
 backend/obj/*
-backend/obj/backend.csproj.nuget.g.targets
-backend/obj/backend.csproj.nuget.dgspec.json
+

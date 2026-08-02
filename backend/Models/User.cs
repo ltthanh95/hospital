@@ -16,5 +16,7 @@ namespace backend.Models
 
         public required Role Role { get; set; }
 
+        public Patient? Patient { get; set; }
+
     }
 }

@@ -32,6 +32,26 @@ namespace backend.Services
                 Role = request.Role,
             };
 
+            if (request.Role == Role.PATIENT && request.Patient is not null)
+            {
+                var admissionDate = DateTime.UtcNow;
+                user.Patient = new Patient
+                {
+                    FName = request.Patient.FName,
+                    LName = request.Patient.LName,
+                    DoB = request.Patient.DoB,
+                    Gender = request.Patient.Gender,
+                    Address = request.Patient.Address,
+                    Phone = request.Patient.Phone,
+                    Email = request.Patient.Email,
+                    BloodType = request.Patient.BloodType,
+                    EmergencyContact = request.Patient.EmergencyContact,
+                    AdmissionDate = admissionDate,
+                    DischargeDate = admissionDate,
+                    status = Status.ADMISSION,
+                };
+            }
+
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
 

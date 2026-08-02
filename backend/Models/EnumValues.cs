@@ -12,6 +12,11 @@
         DOCTOR,
         NURSE
     }
+    public enum Status
+    {
+        ADMISSION,
+        DISCHARGE
+    }
     public class EnumValues
     {
     }
