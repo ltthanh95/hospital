@@ -10,7 +10,7 @@ namespace backend.Models
         public int Id { get; set; }
 
         public DateTime Schedule { get; set; }
-        public Status Status { get; set; } = Status.ACTIVE;
+        public AppointmentStatus Status { get; set; } = AppointmentStatus.PENDING;
 
         public required string Reason { get; set; }
 

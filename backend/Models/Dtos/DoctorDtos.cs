@@ -94,7 +94,7 @@ namespace backend.Models.Dtos
     {
         public required int Id { get; set; }
         public required DateTime Schedule { get; set; }
-        public required Status Status { get; set; }
+        public required AppointmentStatus Status { get; set; }
         public required string Reason { get; set; }
         public required string PatientName { get; set; }
 

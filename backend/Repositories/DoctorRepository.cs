@@ -30,5 +30,10 @@ namespace backend.Repositories
                 .Include(doctor => doctor.MedicalRecords).ThenInclude(record => record.Patient)
                 .FirstOrDefaultAsync(doctor => doctor.Id == id);
         }
+
+        public async Task<Doctor?> GetByUserIdAsync(int userId)
+        {
+            return await _dbSet.FirstOrDefaultAsync(doctor => doctor.UserId == userId);
+        }
     }
 }

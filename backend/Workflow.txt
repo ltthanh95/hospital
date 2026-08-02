@@ -1,0 +1,16 @@
+DbSet works on single data
+DdContet works on table
+
+Repository:
+working with table and dto to retrieve data
+Adding Interface inherit from IRepository
+Implementing Repository
+
+Service -> Feature
+Working with MediatR
+
+Controller
+Calling mediatoR with routes
+
+
+
