@@ -19,6 +19,8 @@ namespace backend.dbContext
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Stay> Stays { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -107,6 +109,18 @@ namespace backend.dbContext
                 .HasOne(payment => payment.Patient)
                 .WithMany(patient => patient.Payment)
                 .HasForeignKey(payment => payment.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Stay>()
+                .HasOne(stay => stay.Patient)
+                .WithMany()
+                .HasForeignKey(stay => stay.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Stay>()
+                .HasOne(stay => stay.Room)
+                .WithMany()
+                .HasForeignKey(stay => stay.RoomId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
