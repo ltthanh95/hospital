@@ -21,6 +21,8 @@ namespace backend.dbContext
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Stay> Stays { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -132,6 +134,24 @@ namespace backend.dbContext
                 .WithMany(room => room.Stays)
                 .HasForeignKey(stay => stay.RoomId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(session => session.Patient)
+                .WithMany(patient => patient.ChatSessions)
+                .HasForeignKey(session => session.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(session => session.Doctor)
+                .WithMany(doctor => doctor.ChatSessions)
+                .HasForeignKey(session => session.DoctorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(message => message.ChatSession)
+                .WithMany(session => session.Messages)
+                .HasForeignKey(message => message.ChatSessionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

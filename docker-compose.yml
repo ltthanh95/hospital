@@ -21,6 +21,9 @@ services:
         TrustServerCertificate=True;
         Encrypt=False;
 
+      OpenRouter__ApiKey: ${OpenRouter__ApiKey}
+      OpenRouter__Model: ${OpenRouter__Model}
+
     depends_on:
       sqlserver:
         condition: service_healthy

@@ -1,12 +1,14 @@
 using System.Text;
 using backend.Controllers;
 using backend.dbContext;
+using backend.Hubs;
 using backend.Mediator;
 using backend.Middleware;
 using backend.Models.Dtos;
 using backend.Repositories;
 using backend.Repositories.Interfaces;
 using backend.Services;
+using backend.Services.Chat;
 using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -76,6 +78,13 @@ builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IStayRepository, StayRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
+
+builder.Services.Configure<OpenRouterSettings>(builder.Configuration.GetSection("OpenRouter"));
+builder.Services.AddScoped<IChatToolExecutor, ChatToolExecutor>();
+builder.Services.AddHttpClient<IChatBotService, OpenRouterChatBotService>();
+builder.Services.AddSingleton<IDoctorPresenceTracker, DoctorPresenceTracker>();
+builder.Services.AddSignalR();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
@@ -157,5 +166,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

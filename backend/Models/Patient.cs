@@ -26,6 +26,8 @@ namespace backend.Models
 
         public List<Invoice> Invoices { get; set; } = new List<Invoice>();
 
+        public List<ChatSession> ChatSessions { get; set; } = new List<ChatSession>();
+
         public void Admission()
         {
             status = Status.ADMISSION;

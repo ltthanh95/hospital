@@ -24,5 +24,7 @@ namespace backend.Models
 
         public List<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
 
+        public List<ChatSession> ChatSessions { get; set; } = new List<ChatSession>();
+
     }
 }

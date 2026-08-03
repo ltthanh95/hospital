@@ -43,4 +43,19 @@
         CANCELLED
     }
 
+    public enum ChatMode
+    {
+        BOT,
+        WAITING_FOR_DOCTOR,
+        LIVE
+    }
+
+    public enum ChatSenderRole
+    {
+        PATIENT,
+        DOCTOR,
+        BOT,
+        SYSTEM
+    }
+
 }
