@@ -1,5 +1,8 @@
+using System.Security.Claims;
+using backend.Models;
 using backend.Models.Dtos;
 using backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -43,6 +46,20 @@ namespace backend.Controllers
 
             SetAuthCookie(result.Token, result.ExpiresAt);
             return Ok(ApiResponse<AuthResponse>.Success(result));
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public ActionResult<ApiResponse<MeResponse>> Me()
+        {
+            var username = User.FindFirstValue(ClaimTypes.Name)!;
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+            return Ok(ApiResponse<MeResponse>.Success(new MeResponse
+            {
+                Username = username,
+                Role = Enum.Parse<Role>(role),
+            }));
         }
 
         [HttpPost("logout")]

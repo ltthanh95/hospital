@@ -84,7 +84,10 @@ builder.Services.Configure<OpenRouterSettings>(builder.Configuration.GetSection(
 builder.Services.AddScoped<IChatToolExecutor, ChatToolExecutor>();
 builder.Services.AddHttpClient<IChatBotService, OpenRouterChatBotService>();
 builder.Services.AddSingleton<IDoctorPresenceTracker, DoctorPresenceTracker>();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 const string FrontendCorsPolicy = "FrontendCorsPolicy";

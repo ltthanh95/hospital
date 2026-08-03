@@ -55,4 +55,10 @@ namespace backend.Models.Dtos
         public required string Username { get; set; }
         public required Role Role { get; set; }
     }
+
+    public class MeResponse
+    {
+        public required string Username { get; set; }
+        public required Role Role { get; set; }
+    }
 }
