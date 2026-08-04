@@ -84,6 +84,10 @@ export class ChatService {
     return this.hub!.invoke('RequestDoctor', sessionId);
   }
 
+  claimSession(sessionId: number) {
+    return this.hub!.invoke('ClaimSession', sessionId);
+  }
+
   endLiveChat(sessionId: number) {
     return this.hub!.invoke('EndLiveChat', sessionId);
   }

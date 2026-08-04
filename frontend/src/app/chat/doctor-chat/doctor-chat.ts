@@ -97,6 +97,17 @@ export class DoctorChatComponent {
   }
 
   async openSession(session: ChatSession) {
+    if (session.mode === 'WAITING_FOR_DOCTOR') {
+      try {
+        await this.chat.claimSession(session.id);
+      } catch {
+        this.errorMessage.set('Failed to claim chat session.');
+        return;
+      }
+      this.refreshSessions();
+      return;
+    }
+
     if (session.mode !== 'LIVE') return;
 
     this.chat.getMessages(session.id).subscribe({

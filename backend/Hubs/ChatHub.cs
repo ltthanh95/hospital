@@ -85,12 +85,32 @@ namespace backend.Hubs
 
             if (session.Mode == ChatMode.BOT && isPatient)
             {
-                var refreshed = await GetSessionOrThrowAsync(sessionId);
-                var reply = await _chatBotService.GetReplyAsync(userId, refreshed.Messages, Context.ConnectionAborted);
-
-                var botMessage = await _chatSessionRepository.AddMessageAsync(sessionId, ChatSenderRole.BOT, null, reply);
-                await Clients.Group(GroupName(sessionId)).SendAsync("ReceiveMessage", ChatMessageResponse.FromEntity(botMessage));
+                await SendBotReplyAsync(sessionId, userId);
             }
+        }
+
+        private async Task SendBotReplyAsync(int sessionId, int userId)
+        {
+            string content;
+            ChatSenderRole senderRole;
+            
+            try
+            {
+                var refreshed = await GetSessionOrThrowAsync(sessionId);
+                Console.WriteLine("###############here");
+                content = await _chatBotService.GetReplyAsync(userId, refreshed.Messages, Context.ConnectionAborted);
+                Console.WriteLine("@@@@@@@@@@@@@there");
+                senderRole = ChatSenderRole.BOT;
+            }
+            catch (Exception) when (!Context.ConnectionAborted.IsCancellationRequested)
+            {
+               
+                content = "The assistant is temporarily unavailable. Please try again shortly, or request a live doctor.";
+                senderRole = ChatSenderRole.SYSTEM;
+            }
+
+            var message = await _chatSessionRepository.AddMessageAsync(sessionId, senderRole, null, content);
+            await Clients.Group(GroupName(sessionId)).SendAsync("ReceiveMessage", ChatMessageResponse.FromEntity(message));
         }
 
         public async Task RequestDoctor(int sessionId)
@@ -120,6 +140,26 @@ namespace backend.Hubs
                 await Clients.Group(GroupName(sessionId)).SendAsync("ReceiveMessage", ChatMessageResponse.FromEntity(systemMessage));
                 await Clients.Group(GroupName(sessionId)).SendAsync("SessionModeChanged", sessionId, ChatMode.WAITING_FOR_DOCTOR.ToString(), null);
             }
+        }
+
+        public async Task ClaimSession(int sessionId)
+        {
+            var (userId, role) = GetCurrentUser();
+            if (role != Role.DOCTOR)
+            {
+                throw new HubException("Only doctors can claim a chat session.");
+            }
+
+            var doctor = await _doctorRepository.GetByUserIdAsync(userId)
+                ?? throw new HubException("Doctor profile not found for the current user.");
+
+            var session = await GetSessionOrThrowAsync(sessionId);
+            if (session.Mode != ChatMode.WAITING_FOR_DOCTOR)
+            {
+                throw new HubException("This session is not waiting for a doctor.");
+            }
+
+            await AssignDoctorAsync(sessionId, doctor.Id);
         }
 
         public async Task SetAvailability(bool isAvailable)

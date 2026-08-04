@@ -33,11 +33,13 @@ namespace backend.Services.Chat
 
             if (_httpClient.BaseAddress is null)
             {
-                _httpClient.BaseAddress = new Uri(_settings.BaseUrl);
+                var baseUrl = _settings.BaseUrl.EndsWith('/') ? _settings.BaseUrl : _settings.BaseUrl + "/";
+                _httpClient.BaseAddress = new Uri(baseUrl);
             }
 
             if (!string.IsNullOrWhiteSpace(_settings.ApiKey))
             {
+                
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _settings.ApiKey);
             }
         }
@@ -48,6 +50,7 @@ namespace backend.Services.Chat
             {
                 new() { Role = "system", Content = SystemPrompt },
             };
+     
 
             foreach (var message in history.Where(m => m.SenderRole is ChatSenderRole.PATIENT or ChatSenderRole.BOT))
             {
@@ -70,9 +73,11 @@ namespace backend.Services.Chat
                 };
 
                 using var response = await _httpClient.PostAsJsonAsync("chat/completions", request, cancellationToken);
+                
                 response.EnsureSuccessStatusCode();
-
+                
                 var body = await response.Content.ReadFromJsonAsync<OpenRouterChatResponse>(cancellationToken: cancellationToken);
+                Console.WriteLine(body);
                 var assistantMessage = body?.Choices?.FirstOrDefault()?.Message;
 
                 if (assistantMessage is null)
