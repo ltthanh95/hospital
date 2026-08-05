@@ -102,6 +102,7 @@ namespace backend.Models.Dtos
         public required DateTime Schedule { get; set; }
         public required AppointmentStatus Status { get; set; }
         public required string Reason { get; set; }
+        public required int PatientId { get; set; }
         public required string PatientName { get; set; }
 
         public static DoctorAppointmentSummary FromEntity(Appointment appointment) => new()
@@ -110,6 +111,7 @@ namespace backend.Models.Dtos
             Schedule = appointment.Schedule,
             Status = appointment.Status,
             Reason = appointment.Reason,
+            PatientId = appointment.PatientId,
             PatientName = $"{appointment.Patient.FName} {appointment.Patient.LName}",
         };
     }

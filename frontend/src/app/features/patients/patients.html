@@ -1,0 +1,54 @@
+<div class="max-w-5xl">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold text-slate-900">Patients</h2>
+    <button
+      (click)="refresh()"
+      class="rounded-lg border border-slate-300 text-sm font-medium px-3 py-1.5 text-slate-600 hover:bg-slate-100"
+    >
+      Refresh
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-slate-500">
+        <tr>
+          <th class="px-4 py-2 font-medium">Name</th>
+          <th class="px-4 py-2 font-medium">Phone</th>
+          <th class="px-4 py-2 font-medium">Email</th>
+          <th class="px-4 py-2 font-medium">Blood type</th>
+          <th class="px-4 py-2 font-medium">Admission date</th>
+          <th class="px-4 py-2 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        @for (patient of patients(); track patient.id) {
+          <tr>
+            <td class="px-4 py-2 text-slate-900">{{ patient.fName }} {{ patient.lName }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ patient.phone }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ patient.email }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ patient.bloodType }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ patient.admissionDate | date: 'mediumDate' }}</td>
+            <td class="px-4 py-2">
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="statusClass(patient.status)">
+                {{ patient.status }}
+              </span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="px-4 py-6 text-center text-slate-400">
+              {{ loading() ? 'Loading...' : 'No patients yet.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

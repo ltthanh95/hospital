@@ -26,6 +26,29 @@ namespace backend.Services.Features
         }
     }
 
+    public class GetMyPatientRequest : IRequest<PatientResponse>
+    {
+        public required int RequestingUserId { get; init; }
+    }
+
+    public class GetMyPatientHandler : IRequestHandler<GetMyPatientRequest, PatientResponse>
+    {
+        private readonly IPatientRepository _patientRepository;
+
+        public GetMyPatientHandler(IPatientRepository patientRepository)
+        {
+            _patientRepository = patientRepository;
+        }
+
+        public async Task<PatientResponse> HandleAsync(GetMyPatientRequest request, CancellationToken cancellationToken)
+        {
+            var patient = await _patientRepository.GetByUserIdAsync(request.RequestingUserId)
+                ?? throw new KeyNotFoundException("Patient profile not found for the current user.");
+
+            return PatientResponse.FromEntity(patient);
+        }
+    }
+
     public class GetPatientByIdRequest : IRequest<PatientResponse>
     {
         public required int PatientId { get; init; }

@@ -14,14 +14,14 @@ namespace backend.Repositories
         public new async Task<IEnumerable<Prescription>> GetAllAsync()
         {
             return await _dbSet
-                .Include(prescription => prescription.PrescriptionItems)
+                .Include(prescription => prescription.PrescriptionItems).ThenInclude(item => item.Medicine)
                 .ToListAsync();
         }
 
         public new async Task<Prescription?> GetByIdAsync(int id)
         {
             return await _dbSet
-                .Include(prescription => prescription.PrescriptionItems)
+                .Include(prescription => prescription.PrescriptionItems).ThenInclude(item => item.Medicine)
                 .FirstOrDefaultAsync(prescription => prescription.Id == id);
         }
     }

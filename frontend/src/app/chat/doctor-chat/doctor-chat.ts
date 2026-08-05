@@ -1,14 +1,13 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { ChatService } from '../../core/services/chat.service';
 import { ChatSession } from '../../models/app.models';
 
 @Component({
   selector: 'app-doctor-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './doctor-chat.html',
 })
 export class DoctorChatComponent {

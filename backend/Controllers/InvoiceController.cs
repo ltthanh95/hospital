@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using backend.Mediator.Interfaces;
 using backend.Models;
 using backend.Models.Dtos;
@@ -9,7 +10,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = nameof(Role.ADMIN))]
+    [Authorize]
     public class InvoiceController : ControllerBase
     {
         private readonly IMyMediator _mediator;
@@ -20,13 +21,24 @@ namespace backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<IEnumerable<InvoiceResponse>>>> GetAll(CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetAllInvoiceRequest(), cancellationToken);
             return Ok(ApiResponse<IEnumerable<InvoiceResponse>>.Success(result));
         }
 
+        [HttpGet("me")]
+        [Authorize(Roles = nameof(Role.PATIENT))]
+        public async Task<ActionResult<ApiResponse<IEnumerable<InvoiceResponse>>>> GetMine(CancellationToken cancellationToken)
+        {
+            var userId = GetCurrentUserId();
+            var result = await _mediator.SendAsync(new GetMyInvoicesRequest { RequestingUserId = userId }, cancellationToken);
+            return Ok(ApiResponse<IEnumerable<InvoiceResponse>>.Success(result));
+        }
+
         [HttpGet("{id:int}")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<InvoiceResponse>>> GetById(int id, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetInvoiceByIdRequest { InvoiceId = id }, cancellationToken);
@@ -34,6 +46,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("generate")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<InvoiceResponse>>> Generate(GenerateInvoiceRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GenerateInvoiceCommand { PatientId = request.PatientId }, cancellationToken);
@@ -42,10 +55,20 @@ namespace backend.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse>> Delete(int id, CancellationToken cancellationToken)
         {
             await _mediator.SendAsync(new DeleteInvoiceRequest { InvoiceId = id }, cancellationToken);
             return Ok(ApiResponse.Success("Invoice deleted."));
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? User.FindFirstValue("sub")
+                ?? throw new UnauthorizedAccessException("User id claim is missing.");
+
+            return int.Parse(userIdClaim);
         }
     }
 }

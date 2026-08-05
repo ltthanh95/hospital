@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MedicineService } from '../../core/services/medicine.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { Medicine } from '../../models/app.models';
 
 @Component({
@@ -13,6 +14,7 @@ import { Medicine } from '../../models/app.models';
 export class MedicinesComponent {
   private fb = inject(FormBuilder).nonNullable;
   private medicineService = inject(MedicineService);
+  auth = inject(AuthService);
 
   medicines = signal<Medicine[]>([]);
   loading = signal(false);

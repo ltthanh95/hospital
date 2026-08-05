@@ -25,6 +25,32 @@ namespace backend.Services.Features
         }
     }
 
+    public class GetMyMedicalRecordsRequest : IRequest<IEnumerable<MedicalRecordResponse>>
+    {
+        public required int RequestingUserId { get; init; }
+    }
+
+    public class GetMyMedicalRecordsHandler : IRequestHandler<GetMyMedicalRecordsRequest, IEnumerable<MedicalRecordResponse>>
+    {
+        private readonly IMedicalRecordRepository _medicalRecordRepository;
+        private readonly IPatientRepository _patientRepository;
+
+        public GetMyMedicalRecordsHandler(IMedicalRecordRepository medicalRecordRepository, IPatientRepository patientRepository)
+        {
+            _medicalRecordRepository = medicalRecordRepository;
+            _patientRepository = patientRepository;
+        }
+
+        public async Task<IEnumerable<MedicalRecordResponse>> HandleAsync(GetMyMedicalRecordsRequest request, CancellationToken cancellationToken)
+        {
+            var patient = await _patientRepository.GetByUserIdAsync(request.RequestingUserId)
+                ?? throw new KeyNotFoundException("Patient profile not found for the current user.");
+
+            var records = await _medicalRecordRepository.GetAllAsync();
+            return records.Where(record => record.PatientId == patient.Id).Select(MedicalRecordResponse.FromEntity);
+        }
+    }
+
     public class GetMedicalRecordByIdRequest : IRequest<MedicalRecordResponse>
     {
         public required int MedicalRecordId { get; init; }

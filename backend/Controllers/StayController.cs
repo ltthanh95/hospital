@@ -9,7 +9,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = nameof(Role.ADMIN))]
+    [Authorize]
     public class StayController : ControllerBase
     {
         private readonly IMyMediator _mediator;
@@ -20,6 +20,7 @@ namespace backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = $"{nameof(Role.ADMIN)},{nameof(Role.DOCTOR)}")]
         public async Task<ActionResult<ApiResponse<IEnumerable<StayResponse>>>> GetAll(CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetAllStayRequest(), cancellationToken);
@@ -27,6 +28,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = $"{nameof(Role.ADMIN)},{nameof(Role.DOCTOR)}")]
         public async Task<ActionResult<ApiResponse<StayResponse>>> GetById(int id, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetStayByIdRequest { StayId = id }, cancellationToken);
@@ -34,6 +36,7 @@ namespace backend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{nameof(Role.ADMIN)},{nameof(Role.DOCTOR)}")]
         public async Task<ActionResult<ApiResponse<StayResponse>>> Create(CreateStayRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new CreateStayCommand
@@ -48,6 +51,7 @@ namespace backend.Controllers
         }
 
         [HttpPatch("{id:int}/checkout")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<StayResponse>>> Checkout(int id, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new CheckoutStayRequest { StayId = id }, cancellationToken);
@@ -55,6 +59,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse>> Delete(int id, CancellationToken cancellationToken)
         {
             await _mediator.SendAsync(new DeleteStayRequest { StayId = id }, cancellationToken);

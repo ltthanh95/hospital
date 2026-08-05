@@ -9,7 +9,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = nameof(Role.ADMIN))]
+    [Authorize]
     public class RoomController : ControllerBase
     {
         private readonly IMyMediator _mediator;
@@ -20,6 +20,7 @@ namespace backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = $"{nameof(Role.ADMIN)},{nameof(Role.DOCTOR)}")]
         public async Task<ActionResult<ApiResponse<IEnumerable<RoomResponse>>>> GetAll(CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetAllRoomRequest(), cancellationToken);
@@ -27,6 +28,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = $"{nameof(Role.ADMIN)},{nameof(Role.DOCTOR)}")]
         public async Task<ActionResult<ApiResponse<RoomResponse>>> GetById(int id, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetRoomByIdRequest { RoomId = id }, cancellationToken);
@@ -34,6 +36,7 @@ namespace backend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<RoomResponse>>> Create(RoomRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new CreateRoomCommand
@@ -48,6 +51,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse<RoomResponse>>> Update(int id, RoomRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new UpdateRoomCommand
@@ -62,6 +66,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = nameof(Role.ADMIN))]
         public async Task<ActionResult<ApiResponse>> Delete(int id, CancellationToken cancellationToken)
         {
             await _mediator.SendAsync(new DeleteRoomRequest { RoomId = id }, cancellationToken);

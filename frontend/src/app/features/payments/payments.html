@@ -1,0 +1,54 @@
+<div class="max-w-5xl">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold text-slate-900">Payments</h2>
+    <button
+      (click)="refresh()"
+      class="rounded-lg border border-slate-300 text-sm font-medium px-3 py-1.5 text-slate-600 hover:bg-slate-100"
+    >
+      Refresh
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-slate-500">
+        <tr>
+          <th class="px-4 py-2 font-medium">Date</th>
+          <th class="px-4 py-2 font-medium">Patient</th>
+          <th class="px-4 py-2 font-medium">Invoice</th>
+          <th class="px-4 py-2 font-medium">Amount</th>
+          <th class="px-4 py-2 font-medium">Method</th>
+          <th class="px-4 py-2 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        @for (payment of payments(); track payment.id) {
+          <tr>
+            <td class="px-4 py-2 text-slate-900">{{ payment.paymentDate | date: 'medium' }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ payment.patientName }}</td>
+            <td class="px-4 py-2 text-slate-600">#{{ payment.invoiceId }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ payment.amount | number: '1.2-2' }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ payment.method }}</td>
+            <td class="px-4 py-2">
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="statusClass(payment.status)">
+                {{ payment.status }}
+              </span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="px-4 py-6 text-center text-slate-400">
+              {{ loading() ? 'Loading...' : 'No payments yet.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

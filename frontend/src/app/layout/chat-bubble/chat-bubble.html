@@ -1,0 +1,155 @@
+@if (!hidden()) {
+  <div class="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    @if (open()) {
+      <div class="flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+        @if (role() === 'PATIENT') {
+          <div class="flex items-center justify-between border-b border-slate-100 bg-blue-600 px-4 py-3">
+            <div>
+              <p class="text-sm font-semibold text-white">Live chat</p>
+              @if (session(); as session) {
+                <p class="text-xs text-blue-100">
+                  @switch (session.mode) {
+                    @case ('BOT') { Chatting with the assistant }
+                    @case ('WAITING_FOR_DOCTOR') { Waiting for a doctor... }
+                    @case ('LIVE') { Live with Dr. {{ session.doctorName }} }
+                  }
+                </p>
+              }
+            </div>
+            <button (click)="toggle()" class="text-blue-100 hover:text-white" aria-label="Close chat">✕</button>
+          </div>
+
+          @if (patientError()) {
+            <div class="border-b border-red-100 bg-red-50 px-3 py-1.5 text-xs text-red-700">
+              {{ patientError() }}
+            </div>
+          }
+
+          <div class="flex-1 space-y-2 overflow-y-auto p-3">
+            @if (patientLoading()) {
+              <p class="text-sm text-slate-400">Starting chat...</p>
+            } @else if (session(); as session) {
+              @for (message of session.messages; track message.id) {
+                @if (message.senderRole === 'SYSTEM') {
+                  <div class="text-center text-xs text-slate-400">{{ message.content }}</div>
+                } @else if (message.senderRole === 'PATIENT') {
+                  <div class="flex justify-end">
+                    <div class="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-600 px-3 py-1.5 text-sm text-white">
+                      {{ message.content }}
+                    </div>
+                  </div>
+                } @else {
+                  <div class="flex justify-start">
+                    <div class="max-w-[80%] rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-1.5 text-sm text-slate-800">
+                      {{ message.content }}
+                    </div>
+                  </div>
+                }
+              } @empty {
+                <p class="text-sm text-slate-400">Say hello to get started.</p>
+              }
+            }
+          </div>
+
+          @if (session(); as session) {
+            <div class="flex items-center gap-2 border-t border-slate-100 px-3 pt-2">
+              @if (session.mode === 'BOT') {
+                <button
+                  (click)="requestDoctor()"
+                  [disabled]="requestingDoctor()"
+                  class="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-60"
+                >
+                  {{ requestingDoctor() ? 'Requesting...' : 'Talk to a live doctor' }}
+                </button>
+              }
+              @if (session.mode === 'WAITING_FOR_DOCTOR') {
+                <span class="text-xs text-amber-600">You're in the queue — hang tight.</span>
+              }
+            </div>
+          }
+
+          <form (ngSubmit)="sendMessage()" class="flex items-center gap-2 border-t border-slate-100 p-3">
+            <input
+              [ngModel]="draft()"
+              (ngModelChange)="draft.set($event)"
+              name="draft"
+              placeholder="Type a message..."
+              autocomplete="off"
+              class="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button
+              type="submit"
+              class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Send
+            </button>
+          </form>
+        } @else if (role() === 'DOCTOR') {
+          <div class="flex items-center justify-between border-b border-slate-100 bg-blue-600 px-4 py-3">
+            <p class="text-sm font-semibold text-white">Patient chat</p>
+            <button (click)="toggle()" class="text-blue-100 hover:text-white" aria-label="Close chat">✕</button>
+          </div>
+
+          @if (doctorError()) {
+            <div class="border-b border-red-100 bg-red-50 px-3 py-1.5 text-xs text-red-700">
+              {{ doctorError() }}
+            </div>
+          }
+
+          <div class="flex-1 overflow-y-auto p-3">
+            <p class="mb-2 text-xs text-slate-500">
+              {{ liveCount() }} live · {{ waitingCount() }} waiting
+            </p>
+            <ul class="space-y-1">
+              @for (session of sessions(); track session.id) {
+                @if (session.mode !== 'BOT') {
+                  <li class="rounded-lg border border-slate-100 px-3 py-2 text-sm">
+                    <p class="font-medium text-slate-900">{{ session.patientName }}</p>
+                    <p class="text-xs text-slate-500">
+                      {{ session.mode === 'LIVE' ? 'Live' : 'Waiting in queue' }}
+                    </p>
+                  </li>
+                }
+              } @empty {
+                <li class="py-6 text-center text-sm text-slate-400">
+                  {{ doctorLoading() ? 'Loading...' : 'No active chats.' }}
+                </li>
+              }
+            </ul>
+          </div>
+
+          <a
+            routerLink="/doctor/chat"
+            (click)="toggle()"
+            class="block border-t border-slate-100 px-3 py-2.5 text-center text-sm font-medium text-blue-600 hover:bg-slate-50"
+          >
+            Open full inbox
+          </a>
+        }
+      </div>
+    }
+
+    <button
+      (click)="toggle()"
+      class="relative flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700"
+      aria-label="Toggle chat"
+    >
+      @if (!open() && role() === 'DOCTOR' && badgeCount() > 0) {
+        <span
+          class="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-semibold text-white"
+        >
+          {{ badgeCount() }}
+        </span>
+      }
+      @if (open()) {
+        <span class="text-xl">✕</span>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">
+          <path
+            d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2z"
+          />
+        </svg>
+      }
+    </button>
+  </div>
+}

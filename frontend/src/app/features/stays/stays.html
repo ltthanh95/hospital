@@ -1,0 +1,98 @@
+<div class="max-w-5xl">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold text-slate-900">Stays</h2>
+    <div class="flex items-center gap-2">
+      <button
+        (click)="toggleForm()"
+        class="rounded-lg bg-blue-600 text-white text-sm font-medium px-3 py-1.5 hover:bg-blue-700"
+      >
+        {{ showForm() ? 'Cancel' : 'Assign room' }}
+      </button>
+      <button
+        (click)="refresh()"
+        class="rounded-lg border border-slate-300 text-sm font-medium px-3 py-1.5 text-slate-600 hover:bg-slate-100"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (showForm()) {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="mb-6 rounded-xl border border-slate-200 bg-white p-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Patient</label>
+          <select formControlName="patientId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+            <option [value]="0">Select a patient</option>
+            @for (patient of patients(); track patient.id) {
+              <option [value]="patient.id">{{ patient.fName }} {{ patient.lName }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Room</label>
+          <select formControlName="roomId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+            <option [value]="0">Select a room</option>
+            @for (room of availableRooms(); track room.id) {
+              <option [value]="room.id">
+                {{ room.roomNumber }} — {{ room.type }} ({{ room.currentOccupancy }}/{{ room.capacity }})
+              </option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Check-in date</label>
+          <input type="date" formControlName="checkIn" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+      </div>
+      <button type="submit" class="rounded-lg bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700">
+        Assign
+      </button>
+    </form>
+  }
+
+  <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-slate-500">
+        <tr>
+          <th class="px-4 py-2 font-medium">Patient</th>
+          <th class="px-4 py-2 font-medium">Room</th>
+          <th class="px-4 py-2 font-medium">Check in</th>
+          <th class="px-4 py-2 font-medium">Check out</th>
+          <th class="px-4 py-2 font-medium">Nights</th>
+          <th class="px-4 py-2 font-medium"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        @for (stay of stays(); track stay.id) {
+          <tr>
+            <td class="px-4 py-2 text-slate-900">{{ stay.patientName }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ stay.roomNumber }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ stay.checkIn | date: 'mediumDate' }}</td>
+            <td class="px-4 py-2 text-slate-600">
+              {{ stay.checkOut ? (stay.checkOut | date: 'mediumDate') : '—' }}
+            </td>
+            <td class="px-4 py-2 text-slate-600">{{ stay.nights }}</td>
+            <td class="px-4 py-2 text-right whitespace-nowrap">
+              @if (!stay.checkOut && auth.user()?.role === 'ADMIN') {
+                <button (click)="checkout(stay)" class="text-blue-600 hover:underline">Check out</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="px-4 py-6 text-center text-slate-400">
+              {{ loading() ? 'Loading...' : 'No stays yet.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

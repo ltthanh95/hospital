@@ -25,6 +25,43 @@ namespace backend.Services.Features
         }
     }
 
+    public class GetMyPrescriptionsRequest : IRequest<IEnumerable<PrescriptionResponse>>
+    {
+        public required int RequestingUserId { get; init; }
+    }
+
+    public class GetMyPrescriptionsHandler : IRequestHandler<GetMyPrescriptionsRequest, IEnumerable<PrescriptionResponse>>
+    {
+        private readonly IPrescriptionRepository _prescriptionRepository;
+        private readonly IMedicalRecordRepository _medicalRecordRepository;
+        private readonly IPatientRepository _patientRepository;
+
+        public GetMyPrescriptionsHandler(
+            IPrescriptionRepository prescriptionRepository,
+            IMedicalRecordRepository medicalRecordRepository,
+            IPatientRepository patientRepository)
+        {
+            _prescriptionRepository = prescriptionRepository;
+            _medicalRecordRepository = medicalRecordRepository;
+            _patientRepository = patientRepository;
+        }
+
+        public async Task<IEnumerable<PrescriptionResponse>> HandleAsync(GetMyPrescriptionsRequest request, CancellationToken cancellationToken)
+        {
+            var patient = await _patientRepository.GetByUserIdAsync(request.RequestingUserId)
+                ?? throw new KeyNotFoundException("Patient profile not found for the current user.");
+
+            var records = await _medicalRecordRepository.GetAllAsync();
+            var myRecordIds = records.Where(record => record.PatientId == patient.Id)
+                .Select(record => record.Id)
+                .ToHashSet();
+
+            var prescriptions = await _prescriptionRepository.GetAllAsync();
+            return prescriptions.Where(prescription => myRecordIds.Contains(prescription.MedicalRecordId))
+                .Select(PrescriptionResponse.FromEntity);
+        }
+    }
+
     public class GetPrescriptionByIdRequest : IRequest<PrescriptionResponse>
     {
         public required int PrescriptionId { get; init; }

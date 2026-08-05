@@ -10,7 +10,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = nameof(Role.DOCTOR))]
+    [Authorize]
     public class MedicalRecordController : ControllerBase
     {
         private readonly IMyMediator _mediator;
@@ -21,13 +21,24 @@ namespace backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = nameof(Role.DOCTOR))]
         public async Task<ActionResult<ApiResponse<IEnumerable<MedicalRecordResponse>>>> GetAll(CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetAllMedicalRecordRequest(), cancellationToken);
             return Ok(ApiResponse<IEnumerable<MedicalRecordResponse>>.Success(result));
         }
 
+        [HttpGet("me")]
+        [Authorize(Roles = nameof(Role.PATIENT))]
+        public async Task<ActionResult<ApiResponse<IEnumerable<MedicalRecordResponse>>>> GetMine(CancellationToken cancellationToken)
+        {
+            var userId = GetCurrentUserId();
+            var result = await _mediator.SendAsync(new GetMyMedicalRecordsRequest { RequestingUserId = userId }, cancellationToken);
+            return Ok(ApiResponse<IEnumerable<MedicalRecordResponse>>.Success(result));
+        }
+
         [HttpGet("{id:int}")]
+        [Authorize(Roles = nameof(Role.DOCTOR))]
         public async Task<ActionResult<ApiResponse<MedicalRecordResponse>>> GetById(int id, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new GetMedicalRecordByIdRequest { MedicalRecordId = id }, cancellationToken);
@@ -35,6 +46,7 @@ namespace backend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(Role.DOCTOR))]
         public async Task<ActionResult<ApiResponse<MedicalRecordResponse>>> Create(CreateMedicalRecordRequest request, CancellationToken cancellationToken)
         {
             var userId = GetCurrentUserId();
@@ -53,6 +65,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = nameof(Role.DOCTOR))]
         public async Task<ActionResult<ApiResponse<MedicalRecordResponse>>> Update(int id, UpdateMedicalRecordRequest request, CancellationToken cancellationToken)
         {
             var result = await _mediator.SendAsync(new UpdateMedicalRecordCommand
@@ -67,6 +80,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = nameof(Role.DOCTOR))]
         public async Task<ActionResult<ApiResponse>> Delete(int id, CancellationToken cancellationToken)
         {
             await _mediator.SendAsync(new DeleteMedicalRecordRequest { MedicalRecordId = id }, cancellationToken);

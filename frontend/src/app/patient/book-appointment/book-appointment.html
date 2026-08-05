@@ -1,0 +1,134 @@
+<div class="max-w-3xl">
+  <h2 class="text-xl font-semibold text-slate-900 mb-4">Book an Appointment</h2>
+
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-sm text-emerald-700">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <div class="rounded-xl border border-slate-200 bg-white p-4 mb-4">
+    <label class="block text-sm font-medium text-slate-700 mb-1">Doctor</label>
+    <select
+      (change)="selectDoctor($any($event.target).value)"
+      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+      <option value="">{{ doctorsLoading() ? 'Loading doctors...' : 'Select a doctor' }}</option>
+      @for (doctor of doctors(); track doctor.id) {
+        <option [value]="doctor.id">
+          Dr. {{ doctor.fName }} {{ doctor.lName }} — {{ doctor.specialization }}
+        </option>
+      }
+    </select>
+  </div>
+
+  @if (selectedDoctorId()) {
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <div class="flex items-center justify-between mb-3">
+        <button (click)="prevMonth()" class="rounded-lg border border-slate-300 px-2 py-1 text-sm text-slate-600 hover:bg-slate-100">
+          ‹
+        </button>
+        <p class="font-medium text-slate-900">{{ monthLabel() }}</p>
+        <button (click)="nextMonth()" class="rounded-lg border border-slate-300 px-2 py-1 text-sm text-slate-600 hover:bg-slate-100">
+          ›
+        </button>
+      </div>
+
+      @if (doctorLoading()) {
+        <p class="text-sm text-slate-400 py-6 text-center">Loading calendar...</p>
+      } @else {
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-slate-500">
+              @for (label of ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']; track label) {
+                <th class="py-1 font-medium">{{ label }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (week of calendarWeeks(); track $index) {
+              <tr>
+                @for (cell of week; track cell.date.getTime()) {
+                  <td class="p-1">
+                    <button
+                      (click)="selectDay(cell)"
+                      [disabled]="cell.isPast"
+                      class="w-full aspect-square rounded-lg text-sm flex flex-col items-center justify-center gap-0.5"
+                      [class.text-slate-300]="!cell.inMonth || cell.isPast"
+                      [class.text-slate-700]="cell.inMonth && !cell.isPast"
+                      [class.bg-blue-600]="selectedDate() && cell.date.getTime() === selectedDate()!.getTime()"
+                      [class.text-white]="selectedDate() && cell.date.getTime() === selectedDate()!.getTime()"
+                      [class.hover:bg-slate-100]="cell.inMonth && !cell.isPast"
+                    >
+                      {{ cell.date.getDate() }}
+                      @if (cell.inMonth && cell.count > 0) {
+                        <span
+                          class="h-1.5 w-1.5 rounded-full"
+                          [class.bg-red-500]="cell.count >= 8"
+                          [class.bg-amber-500]="cell.count < 8"
+                        ></span>
+                      }
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+
+      @if (selectedDate()) {
+        <div class="mt-4 border-t border-slate-100 pt-4">
+          <p class="text-sm font-medium text-slate-700 mb-2">
+            Available times — {{ selectedDate()!.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }) }}
+          </p>
+          <div class="grid grid-cols-4 gap-2 mb-4">
+            @for (slot of daySlots(); track slot.hour) {
+              <button
+                (click)="pickSlot(slot)"
+                [disabled]="slot.disabled"
+                class="rounded-lg border px-2 py-2 text-sm"
+                [class.border-slate-200]="slot.disabled"
+                [class.text-slate-300]="slot.disabled"
+                [class.border-slate-300]="!slot.disabled && selectedSlotHour() !== slot.hour"
+                [class.text-slate-700]="!slot.disabled && selectedSlotHour() !== slot.hour"
+                [class.hover:bg-slate-100]="!slot.disabled && selectedSlotHour() !== slot.hour"
+                [class.bg-blue-600]="selectedSlotHour() === slot.hour"
+                [class.text-white]="selectedSlotHour() === slot.hour"
+                [class.border-blue-600]="selectedSlotHour() === slot.hour"
+              >
+                {{ slot.hour }}:00
+              </button>
+            }
+          </div>
+
+          @if (selectedSlotHour() !== null) {
+            <div class="flex items-end gap-2">
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Reason for visit</label>
+                <input
+                  [ngModel]="reason()"
+                  (ngModelChange)="reason.set($event)"
+                  placeholder="e.g. Annual checkup"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <button
+                (click)="submit()"
+                [disabled]="submitting() || !reason().trim()"
+                class="rounded-lg bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700 disabled:opacity-60"
+              >
+                {{ submitting() ? 'Booking...' : 'Confirm' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

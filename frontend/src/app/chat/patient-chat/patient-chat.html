@@ -1,21 +1,18 @@
-<div class="min-h-screen bg-slate-50 flex flex-col">
-  <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-    <div>
-      <h1 class="text-lg font-semibold text-slate-900">Chat</h1>
-      @if (session(); as session) {
-        <p class="text-xs text-slate-500">
-          @switch (session.mode) {
-            @case ('BOT') { Chatting with the assistant }
-            @case ('WAITING_FOR_DOCTOR') { Waiting for an available doctor... }
-            @case ('LIVE') { Live with Dr. {{ session.doctorName }} }
-          }
-        </p>
-      }
-    </div>
-    <a routerLink="/dashboard" class="text-sm text-slate-500 hover:underline">Dashboard</a>
-  </header>
+<div class="flex flex-col h-[calc(100vh-8rem)]">
+  <div class="mb-4">
+    <h2 class="text-xl font-semibold text-slate-900">Chat</h2>
+    @if (session(); as session) {
+      <p class="text-xs text-slate-500">
+        @switch (session.mode) {
+          @case ('BOT') { Chatting with the assistant }
+          @case ('WAITING_FOR_DOCTOR') { Waiting for an available doctor... }
+          @case ('LIVE') { Live with Dr. {{ session.doctorName }} }
+        }
+      </p>
+    }
+  </div>
 
-  <main class="flex-1 flex flex-col max-w-2xl w-full mx-auto p-6">
+  <main class="flex-1 flex flex-col max-w-2xl w-full mx-auto">
     @if (errorMessage()) {
       <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
         {{ errorMessage() }}

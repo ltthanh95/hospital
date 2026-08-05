@@ -27,6 +27,32 @@ namespace backend.Services.Features
         }
     }
 
+    public class GetMyInvoicesRequest : IRequest<IEnumerable<InvoiceResponse>>
+    {
+        public required int RequestingUserId { get; init; }
+    }
+
+    public class GetMyInvoicesHandler : IRequestHandler<GetMyInvoicesRequest, IEnumerable<InvoiceResponse>>
+    {
+        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IPatientRepository _patientRepository;
+
+        public GetMyInvoicesHandler(IInvoiceRepository invoiceRepository, IPatientRepository patientRepository)
+        {
+            _invoiceRepository = invoiceRepository;
+            _patientRepository = patientRepository;
+        }
+
+        public async Task<IEnumerable<InvoiceResponse>> HandleAsync(GetMyInvoicesRequest request, CancellationToken cancellationToken)
+        {
+            var patient = await _patientRepository.GetByUserIdAsync(request.RequestingUserId)
+                ?? throw new KeyNotFoundException("Patient profile not found for the current user.");
+
+            var invoices = await _invoiceRepository.GetAllAsync();
+            return invoices.Where(invoice => invoice.PatientId == patient.Id).Select(InvoiceResponse.FromEntity);
+        }
+    }
+
     public class GetInvoiceByIdRequest : IRequest<InvoiceResponse>
     {
         public required int InvoiceId { get; init; }

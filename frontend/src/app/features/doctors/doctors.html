@@ -1,0 +1,54 @@
+<div class="max-w-5xl">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold text-slate-900">Doctors</h2>
+    <button
+      (click)="refresh()"
+      class="rounded-lg border border-slate-300 text-sm font-medium px-3 py-1.5 text-slate-600 hover:bg-slate-100"
+    >
+      Refresh
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-slate-500">
+        <tr>
+          <th class="px-4 py-2 font-medium">Name</th>
+          <th class="px-4 py-2 font-medium">Department</th>
+          <th class="px-4 py-2 font-medium">Specialization</th>
+          <th class="px-4 py-2 font-medium">Phone</th>
+          <th class="px-4 py-2 font-medium">Email</th>
+          <th class="px-4 py-2 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        @for (doctor of doctors(); track doctor.id) {
+          <tr>
+            <td class="px-4 py-2 text-slate-900">Dr. {{ doctor.fName }} {{ doctor.lName }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ doctor.departmentName ?? '—' }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ doctor.specialization }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ doctor.phone }}</td>
+            <td class="px-4 py-2 text-slate-600">{{ doctor.email }}</td>
+            <td class="px-4 py-2">
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="statusClass(doctor.status)">
+                {{ doctor.status }}
+              </span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="px-4 py-6 text-center text-slate-400">
+              {{ loading() ? 'Loading...' : 'No doctors yet.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

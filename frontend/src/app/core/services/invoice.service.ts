@@ -10,6 +10,10 @@ export class InvoiceService {
     return this.api.get<Invoice[]>('/invoice');
   }
 
+  getMine() {
+    return this.api.get<Invoice[]>('/invoice/me');
+  }
+
   generate(patientId: number) {
     return this.api.post<Invoice>('/invoice/generate', { patientId });
   }

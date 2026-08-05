@@ -28,6 +28,29 @@ namespace backend.Services.Features
         }
     }
 
+    public class GetMyDoctorRequest : IRequest<DoctorResponse>
+    {
+        public required int RequestingUserId { get; init; }
+    }
+
+    public class GetMyDoctorHandler : IRequestHandler<GetMyDoctorRequest, DoctorResponse>
+    {
+        private readonly IDoctorRepository _doctorRepository;
+
+        public GetMyDoctorHandler(IDoctorRepository doctorRepository)
+        {
+            _doctorRepository = doctorRepository;
+        }
+
+        public async Task<DoctorResponse> HandleAsync(GetMyDoctorRequest request, CancellationToken cancellationToken)
+        {
+            var doctor = await _doctorRepository.GetByUserIdAsync(request.RequestingUserId)
+                ?? throw new KeyNotFoundException("Doctor profile not found for the current user.");
+
+            return DoctorResponse.FromEntity(doctor);
+        }
+    }
+
     public class GetDoctorByIdRequest : IRequest<DoctorResponse>
     {
         public required int DoctorId { get; init; }

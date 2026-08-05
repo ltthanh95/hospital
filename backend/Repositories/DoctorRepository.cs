@@ -33,7 +33,12 @@ namespace backend.Repositories
 
         public async Task<Doctor?> GetByUserIdAsync(int userId)
         {
-            return await _dbSet.FirstOrDefaultAsync(doctor => doctor.UserId == userId);
+            return await _dbSet
+                .Include(doctor => doctor.User)
+                .Include(doctor => doctor.Department)
+                .Include(doctor => doctor.Appointment).ThenInclude(appointment => appointment.Patient)
+                .Include(doctor => doctor.MedicalRecords).ThenInclude(record => record.Patient)
+                .FirstOrDefaultAsync(doctor => doctor.UserId == userId);
         }
     }
 }

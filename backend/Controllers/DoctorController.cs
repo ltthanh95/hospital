@@ -27,6 +27,15 @@ namespace backend.Controllers
             return Ok(ApiResponse<IEnumerable<DoctorResponse>>.Success(result));
         }
 
+        [HttpGet("me")]
+        [Authorize(Roles = nameof(Role.DOCTOR))]
+        public async Task<ActionResult<ApiResponse<DoctorResponse>>> GetMe(CancellationToken cancellationToken)
+        {
+            var (userId, _) = GetCurrentUser();
+            var result = await _mediator.SendAsync(new GetMyDoctorRequest { RequestingUserId = userId }, cancellationToken);
+            return Ok(ApiResponse<DoctorResponse>.Success(result));
+        }
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ApiResponse<DoctorResponse>>> GetById(int id, CancellationToken cancellationToken)
         {
