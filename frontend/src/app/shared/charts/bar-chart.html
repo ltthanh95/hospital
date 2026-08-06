@@ -1,0 +1,92 @@
+<div>
+  @if (showLegend()) {
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+      @for (item of legendItems(); track item.label) {
+        <span class="inline-flex items-center gap-1.5 text-xs text-slate-600">
+          <span class="h-2.5 w-2.5 rounded-sm" [style.background-color]="item.color"></span>
+          {{ item.label }}
+        </span>
+      }
+    </div>
+  }
+
+  @if (!showTable()) {
+    <div class="relative">
+      <svg [attr.viewBox]="'0 0 ' + viewWidth + ' ' + height()" class="w-full h-auto" [style.height.px]="height()">
+        @for (line of gridLines(); track line.value) {
+          <line
+            [attr.x1]="marginLeft"
+            [attr.x2]="viewWidth - marginRight"
+            [attr.y1]="line.y"
+            [attr.y2]="line.y"
+            stroke="#e2e8f0"
+            stroke-width="1"
+          />
+          <text [attr.x]="marginLeft - 6" [attr.y]="line.y" text-anchor="end" dominant-baseline="middle" class="fill-slate-400" font-size="9">
+            {{ formatValue()(line.value) }}
+          </text>
+        }
+
+        @for (bar of bars(); track bar.catIndex + '-' + bar.seriesIndex) {
+          <path
+            [attr.d]="bar.path"
+            [attr.fill]="bar.color"
+            [attr.opacity]="isHovered(bar) ? 0.85 : 1"
+            (mouseenter)="setHovered(bar)"
+            (mouseleave)="clearHovered()"
+          />
+        }
+
+        @for (g of groupCenters(); track g.category; let i = $index) {
+          @if (i % labelStep() === 0) {
+            <text [attr.x]="g.x" [attr.y]="height() - 8" text-anchor="middle" class="fill-slate-500" font-size="9">
+              {{ g.category }}
+            </text>
+          }
+        }
+      </svg>
+
+      @if (hoveredBar(); as bar) {
+        <div
+          class="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-white shadow-lg"
+          [style.left.%]="(bar.labelX / viewWidth) * 100"
+          [style.top.%]="(bar.labelY / height()) * 100"
+        >
+          <span class="font-medium">{{ bar.seriesName !== bar.category ? bar.seriesName + ' · ' : '' }}{{ bar.category }}</span>:
+          {{ formatValue()(bar.value) }}
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs text-left">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-500">
+            <th class="py-1.5 pr-3 font-medium">Category</th>
+            @for (s of series(); track s.name) {
+              <th class="py-1.5 pr-3 font-medium">{{ s.name }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of categories(); track cat; let ci = $index) {
+            <tr class="border-b border-slate-100">
+              <td class="py-1.5 pr-3 text-slate-700">{{ cat }}</td>
+              @for (s of series(); track s.name) {
+                <td class="py-1.5 pr-3 text-slate-900">{{ formatValue()(s.values[ci]) }}</td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <button
+    type="button"
+    (click)="toggleTable()"
+    class="mt-2 text-xs font-medium text-blue-600 hover:underline"
+  >
+    {{ showTable() ? 'View as chart' : 'View as table' }}
+  </button>
+</div>

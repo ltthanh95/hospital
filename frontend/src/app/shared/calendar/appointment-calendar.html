@@ -1,0 +1,118 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div class="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-900">{{ monthLabel() }}</h3>
+      <div class="flex items-center gap-1">
+        <button
+          (click)="goToday()"
+          class="rounded-lg border border-slate-300 text-xs font-medium px-2 py-1 text-slate-600 hover:bg-slate-100"
+        >
+          Today
+        </button>
+        <button
+          (click)="prevMonth()"
+          class="rounded-lg border border-slate-300 h-7 w-7 text-slate-600 hover:bg-slate-100"
+          aria-label="Previous month"
+        >
+          ‹
+        </button>
+        <button
+          (click)="nextMonth()"
+          class="rounded-lg border border-slate-300 h-7 w-7 text-slate-600 hover:bg-slate-100"
+          aria-label="Next month"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-400 mb-1">
+      @for (label of weekdayLabels; track label) {
+        <div class="py-1">{{ label }}</div>
+      }
+    </div>
+
+    <div class="grid grid-cols-7 gap-1">
+      @for (week of weeks(); track $index) {
+        @for (cell of week; track cell.date.getTime()) {
+          <button
+            type="button"
+            (click)="selectDay(cell)"
+            class="relative aspect-square rounded-lg border text-left p-1.5 text-xs transition-colors"
+            [class.border-blue-600]="isSelected(cell)"
+            [class.bg-blue-50]="isSelected(cell)"
+            [class.border-slate-100]="!isSelected(cell)"
+            [class.text-slate-300]="!cell.inMonth"
+            [class.text-slate-700]="cell.inMonth && !isSelected(cell)"
+            [class.text-blue-700]="isSelected(cell)"
+          >
+            <span
+              class="inline-flex h-5 w-5 items-center justify-center rounded-full"
+              [class.bg-blue-600]="cell.isToday"
+              [class.text-white]="cell.isToday"
+              [class.font-semibold]="cell.isToday"
+            >
+              {{ cell.date.getDate() }}
+            </span>
+            @if (cell.items.length) {
+              <span class="absolute bottom-1 left-1.5 flex items-center gap-0.5">
+                @for (item of cell.items.slice(0, 3); track item.id) {
+                  <span class="h-1.5 w-1.5 rounded-full" [class]="statusDotClass(item.status)"></span>
+                }
+                @if (cell.items.length > 3) {
+                  <span class="text-[10px] leading-none text-slate-400">+{{ cell.items.length - 3 }}</span>
+                }
+              </span>
+            }
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-4">
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <h3 class="text-sm font-semibold text-slate-900 mb-2">{{ selectedDate() | date: 'EEEE, MMM d' }}</h3>
+      <div class="space-y-2">
+        @for (item of selectedDayItems(); track item.id) {
+          <div class="rounded-lg border border-slate-100 p-2">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-sm font-medium text-slate-900 truncate">{{ item.primaryLabel }}</p>
+              <span
+                class="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+                [class]="statusBadgeClass(item.status)"
+              >
+                {{ item.status }}
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">{{ item.date | date: 'shortTime' }} · {{ item.secondaryLabel }}</p>
+          </div>
+        } @empty {
+          <p class="text-sm text-slate-400">{{ emptyLabel() }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white p-4">
+      <h3 class="text-sm font-semibold text-slate-900 mb-2">Upcoming</h3>
+      <div class="space-y-2">
+        @for (item of upcoming(); track item.id) {
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-sm text-slate-900 truncate">{{ item.primaryLabel }}</p>
+              <p class="text-xs text-slate-500">{{ item.date | date: 'MMM d, h:mm a' }}</p>
+            </div>
+            <span
+              class="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+              [class]="statusBadgeClass(item.status)"
+            >
+              {{ item.status }}
+            </span>
+          </div>
+        } @empty {
+          <p class="text-sm text-slate-400">{{ emptyLabel() }}</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

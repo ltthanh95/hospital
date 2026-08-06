@@ -1,0 +1,32 @@
+<div>
+  @if (errorMessage()) {
+    <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="text-slate-400">Loading...</p>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
+        <p class="text-sm text-slate-500">Next appointment</p>
+        @if (nextAppointment(); as next) {
+          <p class="mt-1 text-lg font-semibold text-slate-900">{{ next.primaryLabel }}</p>
+          <p class="text-sm text-slate-500">{{ next.date | date: 'EEE, MMM d · h:mm a' }}</p>
+        } @else {
+          <p class="mt-1 text-lg font-semibold text-slate-400">None scheduled</p>
+        }
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-5">
+        <p class="text-sm text-slate-500">Upcoming appointments</p>
+        <p class="mt-1 text-2xl font-semibold text-slate-900">{{ upcomingCount() }}</p>
+      </div>
+    </div>
+
+    <app-appointment-calendar
+      [events]="calendarEvents()"
+      emptyLabel="No upcoming appointments on this day."
+    />
+  }
+</div>

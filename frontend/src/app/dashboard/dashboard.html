@@ -1,32 +1,20 @@
 <div>
-  <h2 class="text-xl font-semibold text-slate-900 mb-1">Hospital Dashboard</h2>
-  @if (auth.user(); as user) {
-    <p class="text-slate-600 mb-4">Welcome back, {{ user.username }}.</p>
-  }
-  <div class="flex gap-3">
-    @if (auth.user()?.role === 'ADMIN') {
-      <a
-        routerLink="/departments"
-        class="inline-block rounded-lg bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700"
-      >
-        Open admin panel
-      </a>
-    }
-    @if (auth.user()?.role === 'PATIENT') {
-      <a
-        routerLink="/book-appointment"
-        class="inline-block rounded-lg bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700"
-      >
-        Book an appointment
-      </a>
-    }
-    @if (auth.user()?.role === 'DOCTOR') {
-      <a
-        routerLink="/my-patients"
-        class="inline-block rounded-lg bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700"
-      >
-        My patients
-      </a>
+  <div class="mb-5">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Hospital Dashboard</h2>
+    @if (auth.user(); as user) {
+      <p class="text-slate-600">Welcome back, {{ user.username }}.</p>
     }
   </div>
+
+  @switch (auth.user()?.role) {
+    @case ('PATIENT') {
+      <app-patient-dashboard />
+    }
+    @case ('DOCTOR') {
+      <app-doctor-dashboard />
+    }
+    @case ('ADMIN') {
+      <app-admin-dashboard />
+    }
+  }
 </div>

@@ -1,0 +1,89 @@
+<div>
+  @if (!showTable()) {
+    <div class="relative">
+      <svg [attr.viewBox]="'0 0 ' + viewWidth + ' ' + height()" class="w-full h-auto" [style.height.px]="height()">
+        @for (line of gridLines(); track line.value) {
+          <line
+            [attr.x1]="marginLeft"
+            [attr.x2]="viewWidth - marginRight"
+            [attr.y1]="line.y"
+            [attr.y2]="line.y"
+            stroke="#e2e8f0"
+            stroke-width="1"
+          />
+          <text [attr.x]="marginLeft - 6" [attr.y]="line.y" text-anchor="end" dominant-baseline="middle" class="fill-slate-400" font-size="9">
+            {{ formatValue()(line.value) }}
+          </text>
+        }
+
+        <path [attr.d]="areaPath()" [attr.fill]="color()" fill-opacity="0.12" stroke="none" />
+        <path [attr.d]="linePath()" fill="none" [attr.stroke]="color()" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+
+        @if (hoveredPoint(); as hp) {
+          <line
+            [attr.x1]="hp.x"
+            [attr.x2]="hp.x"
+            [attr.y1]="marginTop"
+            [attr.y2]="marginTop + plotHeight()"
+            stroke="#94a3b8"
+            stroke-width="1"
+            stroke-dasharray="3,3"
+          />
+        }
+
+        @for (p of points(); track p.category; let i = $index) {
+          <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" [attr.fill]="color()" stroke="white" stroke-width="1.5" />
+          <circle
+            [attr.cx]="p.x"
+            [attr.cy]="p.y"
+            r="9"
+            fill="transparent"
+            (mouseenter)="setHovered(i)"
+            (mouseleave)="clearHovered()"
+          />
+        }
+
+        @for (p of points(); track p.category; let i = $index) {
+          @if (i % labelStep() === 0) {
+            <text [attr.x]="p.x" [attr.y]="height() - 8" text-anchor="middle" class="fill-slate-500" font-size="9">
+              {{ p.category }}
+            </text>
+          }
+        }
+      </svg>
+
+      @if (hoveredPoint(); as hp) {
+        <div
+          class="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs text-white shadow-lg"
+          [style.left.%]="(hp.x / viewWidth) * 100"
+          [style.top.%]="(hp.y / height()) * 100"
+        >
+          <span class="font-medium">{{ hp.category }}</span>: {{ formatValue()(hp.value) }}
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs text-left">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-500">
+            <th class="py-1.5 pr-3 font-medium">Period</th>
+            <th class="py-1.5 pr-3 font-medium">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of categories(); track cat; let i = $index) {
+            <tr class="border-b border-slate-100">
+              <td class="py-1.5 pr-3 text-slate-700">{{ cat }}</td>
+              <td class="py-1.5 pr-3 text-slate-900">{{ formatValue()(data()[i]) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <button type="button" (click)="toggleTable()" class="mt-2 text-xs font-medium text-blue-600 hover:underline">
+    {{ showTable() ? 'View as chart' : 'View as table' }}
+  </button>
+</div>
