@@ -53,3 +53,4 @@ TestResults/
 backend/Migrations/*
 backend/obj/*
 
+.claude/launch.json
