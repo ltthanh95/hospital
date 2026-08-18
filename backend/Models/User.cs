@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
 {
+    //This is model for User
     public class User
     {
+        //Primary key ID that will be auto increamented
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

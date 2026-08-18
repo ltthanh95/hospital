@@ -1,3 +1,4 @@
+//Template for Doctor Present - sytem will check if Doctor is ready for chat
 namespace backend.Services.Chat
 {
     public interface IDoctorPresenceTracker

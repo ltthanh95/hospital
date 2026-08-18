@@ -24,8 +24,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-}); ;
+});
 
+//This is the API MIDDLEWARE handler
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -38,6 +39,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         return new BadRequestObjectResult(ApiResponse.Fail(message, StatusCodes.Status400BadRequest));
     };
 });
+//Added swagger for API UI testing and using bearer for AUTHENTICATION
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -56,10 +58,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+//Register Jwt for authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
     ?? throw new InvalidOperationException("Jwt configuration section is missing.");
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
+//Regiser MediatR
 builder.Services.AddMyMediator(typeof(Program).Assembly);
 
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -80,10 +84,13 @@ builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
 
+//Register services from OpenRouter and service from Interface for chat
 builder.Services.Configure<OpenRouterSettings>(builder.Configuration.GetSection("OpenRouter"));
 builder.Services.AddScoped<IChatToolExecutor, ChatToolExecutor>();
 builder.Services.AddHttpClient<IChatBotService, OpenRouterChatBotService>();
 builder.Services.AddSingleton<IDoctorPresenceTracker, DoctorPresenceTracker>();
+
+//This is signalR setup and convert to Json for processing
 builder.Services.AddSignalR().AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -102,6 +109,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+//Setup JWT for identify users
 builder.Services
     .AddAuthentication(options =>
     {
@@ -169,6 +177,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+//Turn on siglR for chat with route /hubs/chat => Frontend will call this route to open chat SignalR
 app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

@@ -3,6 +3,7 @@ using backend.Models;
 using backend.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+//Implement from Interfaces
 namespace backend.Repositories
 {
     public class AppointmentRepository : Repository<Appointment>, IAppointmentRepository

@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
+   /*
+    * this is chat controller that allow patient and doctor can open session chat to each other or Patient can chat with AI
+    * 
+   */
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -22,14 +26,17 @@ namespace backend.Controllers
 
         [HttpPost("sessions")]
         [Authorize(Roles = nameof(Role.PATIENT))]
+        //This controller method for get or create session request
         public async Task<ActionResult<ApiResponse<ChatSessionResponse>>> GetOrCreateSession(CancellationToken cancellationToken)
         {
+           
             var userId = GetCurrentUserId();
             var result = await _mediator.SendAsync(new GetOrCreateChatSessionRequest { RequestingUserId = userId }, cancellationToken);
             return Ok(ApiResponse<ChatSessionResponse>.Success(result));
         }
 
         [HttpGet("sessions/{id:int}/messages")]
+        //this controller method for getting message that patient or doctor was in session (messages store in database)
         public async Task<ActionResult<ApiResponse<ChatSessionResponse>>> GetMessages(int id, CancellationToken cancellationToken)
         {
             var userId = GetCurrentUserId();
@@ -39,6 +46,7 @@ namespace backend.Controllers
 
         [HttpGet("sessions")]
         [Authorize(Roles = nameof(Role.DOCTOR))]
+        //This controller mehod for getting current session for chat
         public async Task<ActionResult<ApiResponse<IEnumerable<ChatSessionResponse>>>> GetMySessions(CancellationToken cancellationToken)
         {
             var userId = GetCurrentUserId();

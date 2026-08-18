@@ -1,3 +1,6 @@
+/*
+ * This method for extension and inject into Program.cs to run middleware
+ */
 namespace backend.Middleware
 {
     public static class ExceptionHandlingMiddlewareExtensions

@@ -1,5 +1,6 @@
 using backend.Models;
 
+//Template for Chat with the all methods from IRepository
 namespace backend.Repositories.Interfaces
 {
     public interface IChatSessionRepository : IRepository<ChatSession>

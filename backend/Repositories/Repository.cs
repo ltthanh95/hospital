@@ -2,6 +2,7 @@ using backend.dbContext;
 using backend.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+//Implement Repository from IRepository
 namespace backend.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+//This is DTO (data transfer object) that help us limit touching directly to model prevent any mistake and we can custom rules on DTO
 namespace backend.Models.Dtos
 {
     public class CreateAppointmentRequest
@@ -35,6 +36,7 @@ namespace backend.Models.Dtos
         public required string PatientName { get; set; }
         public int? MedicalRecordId { get; set; }
 
+        //Mapping Response to Entity to match the type from response
         public static AppointmentResponse FromEntity(Appointment appointment) => new()
         {
             Id = appointment.Id,

@@ -4,12 +4,15 @@ using backend.Models;
 using backend.Models.Dtos;
 using backend.Repositories.Interfaces;
 
+//Handle Mediator for Appointments
 namespace backend.Services.Features
 {
+    //Get Request from Users
     public class GetAllAppointmentRequest : IRequest<IEnumerable<AppointmentResponse>>
     {
     }
 
+    //Handle the resquests
     public class GetAllAppointmentHandler : IRequestHandler<GetAllAppointmentRequest, IEnumerable<AppointmentResponse>>
     {
         private readonly IAppointmentRepository _appointmentRepository;

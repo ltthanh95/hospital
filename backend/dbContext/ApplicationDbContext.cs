@@ -5,6 +5,7 @@ namespace backend.dbContext
 {
     public class ApplicationDbContext: DbContext
     {
+        //This is setting for database connection 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options):base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Patient> Patients { get; set; }
@@ -23,6 +24,7 @@ namespace backend.dbContext
         public DbSet<Stay> Stays { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        //describe the relationship of tables
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -3,6 +3,10 @@ using backend.Exceptions;
 using backend.Models.Dtos;
 using Microsoft.EntityFrameworkCore;
 
+/*
+ * The methods for exception like unatthorize, Invalid, etc. Instead of we used from c# library it limites code so we can custom it in midleware, when it has errors middle will catch it and show us the error
+ * It is wrapped in APIResponse
+ */
 namespace backend.Middleware
 {
     public class ExceptionHandlingMiddleware
@@ -46,9 +50,13 @@ namespace backend.Middleware
 
         private static (int StatusCode, string Title) MapException(Exception exception) => exception switch
         {
+            //prevent unauthorize access to controller
             ForbiddenAccessException => ((int)HttpStatusCode.Forbidden, "Forbidden"),
+            //prevent unauthorize access to controller
             UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "Unauthorized"),
+            //error: NOT FOUND ITEM from db
             KeyNotFoundException => ((int)HttpStatusCode.NotFound, "Resource not found"),
+            //bad request for invalid or bug in codes
             ArgumentException => ((int)HttpStatusCode.BadRequest, "Invalid request"),
             DbUpdateException => ((int)HttpStatusCode.Conflict, "Operation could not be completed because related records exist"),
             InvalidOperationException => ((int)HttpStatusCode.Conflict, "Operation could not be completed"),

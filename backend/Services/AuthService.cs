@@ -4,6 +4,7 @@ using backend.Models.Dtos;
 using backend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+//Handle service for login and register
 namespace backend.Services
 {
     public class AuthService : IAuthService

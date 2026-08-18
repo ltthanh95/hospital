@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+//This is Resquest and Response for Auth
 namespace backend.Models.Dtos
 {
     public class RegisterRequest : IValidatableObject

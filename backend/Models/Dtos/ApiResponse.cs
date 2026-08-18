@@ -1,5 +1,7 @@
+//DTO for API like the template as we want to show to users
 namespace backend.Models.Dtos
 {
+    //This is generic APi Response with T is any types as parameters
     public class ApiResponse<T>
     {
         public required int Status { get; set; }
@@ -20,6 +22,8 @@ namespace backend.Models.Dtos
             Result = default,
         };
     }
+
+    //This is implemented ApiResponse
 
     public class ApiResponse
     {

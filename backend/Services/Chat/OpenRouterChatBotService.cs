@@ -4,6 +4,9 @@ using System.Text.Json;
 using backend.Models;
 using Microsoft.Extensions.Options;
 
+/// Service for interacting with the OpenRouter chatbot API. Handles patient queries, integrates with tools
+/// for retrieving medical records, patient profiles, and booking appointments, and ensures proper communication
+/// with the chatbot API.
 namespace backend.Services.Chat
 {
     public class OpenRouterChatBotService : IChatBotService
@@ -25,6 +28,11 @@ namespace backend.Services.Chat
         private readonly OpenRouterSettings _settings;
         private readonly IChatToolExecutor _toolExecutor;
 
+
+        /// Initializes a new instance of the <see cref="OpenRouterChatBotService"/> class.
+        /// <param name="httpClient">The HTTP client for making API requests.</param>
+        /// <param name="settings">Configuration settings for the OpenRouter API.</param>
+        /// <param name="toolExecutor">Executor for handling tool calls.</param>
         public OpenRouterChatBotService(HttpClient httpClient, IOptions<OpenRouterSettings> settings, IChatToolExecutor toolExecutor)
         {
             _httpClient = httpClient;
@@ -44,6 +52,11 @@ namespace backend.Services.Chat
             }
         }
 
+        /// Processes a chat history and generates a reply using the OpenRouter chatbot API.
+        /// <param name="patientUserId">The ID of the patient user.</param>
+        /// <param name="history">The chat history to process.</param>
+        /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+        /// <returns>A string containing the chatbot's reply.</returns>
         public async Task<string> GetReplyAsync(int patientUserId, IReadOnlyList<ChatMessage> history, CancellationToken cancellationToken)
         {
             var messages = new List<OpenRouterMessage>
@@ -51,7 +64,7 @@ namespace backend.Services.Chat
                 new() { Role = "system", Content = SystemPrompt },
             };
      
-
+            //get chat history 
             foreach (var message in history.Where(m => m.SenderRole is ChatSenderRole.PATIENT or ChatSenderRole.BOT))
             {
                 messages.Add(new OpenRouterMessage
@@ -72,6 +85,7 @@ namespace backend.Services.Chat
                     Tools = tools,
                 };
 
+                //This is router chatbot form openRouter
                 using var response = await _httpClient.PostAsJsonAsync("chat/completions", request, cancellationToken);
                 
                 response.EnsureSuccessStatusCode();
@@ -92,6 +106,7 @@ namespace backend.Services.Chat
 
                 messages.Add(assistantMessage);
 
+                //Executed the tools
                 foreach (var toolCall in assistantMessage.ToolCalls)
                 {
                     var result = await _toolExecutor.ExecuteAsync(
@@ -113,6 +128,7 @@ namespace backend.Services.Chat
             return "I looked into that but I'm having trouble finishing the request — could you rephrase or try again?";
         }
 
+        //Setup OpenRouter settings for the application
         private static List<OpenRouterToolDefinition> BuildToolDefinitions() =>
         [
             new OpenRouterToolDefinition

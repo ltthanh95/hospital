@@ -6,6 +6,7 @@ using backend.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
+//Generate Token for authentication
 namespace backend.Services
 {
     public class TokenService : ITokenService
@@ -21,6 +22,7 @@ namespace backend.Services
         {
             var expiresAt = DateTime.UtcNow.AddMinutes(_settings.ExpiryMinutes);
 
+            //Add claims for Identity
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),

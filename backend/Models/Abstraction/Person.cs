@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+//Ceate this absraction for blueprint because Every role has same fields
 namespace backend.Models.Abstraction
 {
 
